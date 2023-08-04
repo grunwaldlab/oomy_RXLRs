@@ -1,0 +1,50 @@
+---
+title: "Martha_paga_rxlr_workbook"
+output: html_document
+date: "2023-08-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Martha's notes in real time-not polished at this point (will revise later)
+# To install emboss I used following command on Linux computer: 
+# sudo apt install emboss
+# NOTE-to define 'isolate' variable-needed to fix suffix to -s rather than -suffix, or else there were errors
+
+```{bash, eval = FALSE}
+#Step 1
+mkdir output_data
+genome="data/Paga_3770v2_chr10.fasta"
+isolate=$(basename -s ".fasta" ${genome})
+minsize_aa=70 # amino acids
+minsize_nt=210 # minsize_aa*3 = number of nucleotides
+orfs_name="${isolate}.orfs-min${minsize_aa}long.start2stop"
+orfs="output_data/${orfs_name}.fasta"
+
+getorf -sequence "$genome" -outseq "$orfs" -minsize $minsize_nt --find 1
+
+threads=10
+CMD="python2.7 scripts/rxlr_signalpeptide.py $orfs $threads \
+	secretome output_data/${orfs_name}.rxlr_signalpep.out"
+echo $CMD
+eval $CMD
+
+tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out
+```
+
+
+#When I install tmhmm from DTU health, I get this note:
+#NOTE: TMHMM-2.0 is outdated. A more recent and better transmembrane predictor, DeepTMHMM, has been #released and is available at https://services.healthtech.dtu.dk/service.php?DeepTMHMM. 
+
+# Make clear what version of signalP. V 3.0 is mentioned once in instruction but not explicitely, but the latest version is 5--so you do have to dig for an earlier version.
+#Downloade SignalP3.0 from same source. Install instructions are in READMES and nowhere online! 
+#Note for signalP I had to copy signalp to /usr/bin. This was key for getting it to work
+
+#error: seq_analysis_utils-where is this? I cannot automatically import this using rxlr_signalpeptide.py script
+#This is where you do need to use python2.7. This also requires installing another python version on newer computers. I used pip to install v 2.7. 
+#I also needed several other packages; this is a bit clunky using Rmarkdown. Maybe a readme file is preferable with the code chunks--I'll see as I go.  
+
+
+
