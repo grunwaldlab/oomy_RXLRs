@@ -120,6 +120,13 @@ def get_signalp_version(exe, required=None):
     except OSError:
         raise ValueError("Could not run %s" % exe) 
     stdout, stderr = child.communicate()
+    if required:
+        return required in stdout
+    elif "3.0b" in stdout:
+        return 3
+    else:
+        raise ValueError("Could not determine version of %s" % exe)
+
 if not get_signalp_version(signalp_exe, "3.0b, Dec 2005"):
     sys.exit("Missing signalp-3.0b, Dec 2005 binary, %s" % signalp_exe)
 
