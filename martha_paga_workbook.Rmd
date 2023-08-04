@@ -13,27 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # sudo apt install emboss
 # NOTE-to define 'isolate' variable-needed to fix suffix to -s rather than -suffix, or else there were errors
 
-```{bash, eval = FALSE}
-#Step 1
-mkdir output_data
-genome="data/Paga_3770v2_chr10.fasta"
-isolate=$(basename -s ".fasta" ${genome})
-minsize_aa=70 # amino acids
-minsize_nt=210 # minsize_aa*3 = number of nucleotides
-orfs_name="${isolate}.orfs-min${minsize_aa}long.start2stop"
-orfs="output_data/${orfs_name}.fasta"
-
-getorf -sequence "$genome" -outseq "$orfs" -minsize $minsize_nt --find 1
-
-threads=10
-CMD="python2.7 scripts/rxlr_signalpeptide.py $orfs $threads \
-	secretome output_data/${orfs_name}.rxlr_signalpep.out"
-echo $CMD
-eval $CMD
-
-tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out
-```
-
 
 #When I install tmhmm from DTU health, I get this note:
 #NOTE: TMHMM-2.0 is outdated. A more recent and better transmembrane predictor, DeepTMHMM, has been #released and is available at https://services.healthtech.dtu.dk/service.php?DeepTMHMM. 
@@ -47,4 +26,84 @@ tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out
 #I also needed several other packages; this is a bit clunky using Rmarkdown. Maybe a readme file is preferable with the code chunks--I'll see as I go.  
 
 
+#Weirdly couldn't run second set of commands in separate code chunks. 
+```{bash, eval = TRUE}
+#Step 1
+mkdir output_data
+genome="data/Paga_3770v2_chr10.fasta"
+isolate=$(basename -s ".fasta" ${genome})
+minsize_aa=70 # amino acids
+minsize_nt=210 # minsize_aa*3 = number of nucleotides
+orfs_name="${isolate}.orfs-min${minsize_aa}long.start2stop"
+orfs="output_data/${orfs_name}.fasta"
 
+getorf -sequence "$genome" -outseq "$orfs" -minsize $minsize_nt --find 1
+
+#Step 2-couldn't run in separate code chunk for some reason
+threads=10
+CMD="python2.7 scripts/rxlr_signalpeptide.py $orfs $threads \
+	secretome output_data/${orfs_name}.rxlr_signalpep.out"
+echo $CMD
+eval $CMD
+
+tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out
+
+#step 3
+hmmsearch --cpu 4 --seed 123 -T 0 --tblout output_data/${orfs_name}.rxlr_WYfold_hmm.out data/WY_fold.hmm $orfs > output_data/${orfs_name}.rxlr_WYfold_hmm.log
+
+# simple list of candidates
+egrep -v '^#' output_data/${orfs_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > output_data/${orfs_name}.rxlr_WYfold_hmm.list
+
+
+
+```
+
+#Not sure, but cannot run this code chunk after first. I need to paste code above last lines of first code chunk-maybe it forgets variable names between chunks (I am not as well versed in Rmarkdown)
+```{r eval = TRUE}
+source("scripts/secretion_funcs.R")
+library("tidyverse")
+
+wy_list_regex <- "*.orfs-min70long.start2stop.rxlr_WYfold_hmm.list"
+orfs_wys <-  list.files(path = "output_data//",
+                                pattern = wy_list_regex, full.names = TRUE) %>%
+  map_dfr(read_wy_list) %>%
+  unite("ID_isolate", ID, isolate, sep=":", remove = FALSE) %>%
+  mutate("method" = "WY_hmm")
+```
+
+```{r eval = TRUE}
+#Need 
+library("seqinr")
+library("dplyr")
+library("stringr")
+library("purrr")
+# Locate files programmatically in R environment
+# all ORFs:
+orf_fs_re <- ".*orfs-min70long.start2stop.fasta"
+orf_fs <- list.files(path = "output_data//",
+                                pattern = orf_fs_re, full.names = TRUE) %>%
+  tibble("orf_f" = .) %>%
+  separate(orf_f, into = c("isolate", NA),
+           sep = "(?=\\.orfs-min)", remove = FALSE) %>%
+  mutate(isolate = str_remove(isolate, ".*data/*"))
+
+# SignalP output files:
+sp3_fs_re <- ".*orfs-min70long.start2stop.rxlr_signalpep.outsp3_tabular.tmp"
+sp3_fs <- list.files(path = "output_data//",
+                                pattern = sp3_fs_re, full.names = TRUE) %>%
+  tibble("sp3_f" = .) %>%
+  separate(sp3_f, into = c("isolate", NA),
+           sep = "(?=\\.orfs-min)", remove = FALSE) %>%
+  mutate(isolate = str_remove(isolate, ".*data/*"))
+
+orf_sp3_fs <- full_join(orf_fs, sp3_fs, by = "isolate") %>%
+  select(orf_f, sp3_f, isolate)
+
+# run motif search
+allorfs_re_effectr <- map2(orf_sp3_fs$orf_f, orf_sp3_fs$sp3_f, effectr_eer_sp3)
+
+allorfs_re_effectr_tb <- tibble(bind_rows(allorfs_re_effectr)) %>%
+  unite("ID_isolate", ID, isolate, sep=":", remove = FALSE)
+```
+
+#I don't have 'effectr_eer_sp3'. I think we may be missing a code chunk
