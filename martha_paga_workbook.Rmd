@@ -17,6 +17,7 @@ library('effectR')
 devtools::load_all("~/software/iSecrete-master/")
 library('iSecrete')
 source("scripts/secretion_funcs.R")
+library("optparse")
 ```
 
 # Martha's notes in real time-not polished at this point (will revise later)
@@ -57,7 +58,7 @@ CMD="python2.7 scripts/rxlr_signalpeptide.py $orfs $threads \
 echo $CMD
 eval $CMD
 
-tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out
+~/software/tmhmm-2.0c/bin/tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out
 
 #step 3
 hmmsearch --cpu 4 --seed 123 -T 0 --tblout output_data/${orfs_name}.rxlr_WYfold_hmm.out data/WY_fold.hmm $orfs > output_data/${orfs_name}.rxlr_WYfold_hmm.log
@@ -84,8 +85,6 @@ orfs_wys <-  list.files(path = "output_data//",
 
 #Step four in instructinos
 ```{r eval = TRUE}
-#Need 
-
 
 # Locate files programmatically in R environment
 # all ORFs:
@@ -120,10 +119,10 @@ allorfs_re_effectr_tb <- tibble(bind_rows(allorfs_re_effectr)) %>%
 #error protein column doesn't exist
 ```{r eval = TRUE}
 sp3_fs_re <- ".*orfs-min70long.start2stop.rxlr_signalpep.outsp3_tabular.tmp"
-sp3_fs <- list.files(path = "annotation/effectors/output_data/",
+sp3_fs <- list.files(path = "output_data/",
                                 pattern = sp3_fs_re, full.names = TRUE)
 tmm_fs_re <- ".*orfs-min70long.start2stop.tmhmm.out"
-tmm_fs <- list.files(path= "annotation/effectors/output_data/",
+tmm_fs <- list.files(path= "output_data/",
                                 pattern = tmm_fs_re, full.names = TRUE)
 
 # make dataframe for easier function running
@@ -151,13 +150,76 @@ sp3_tmm_pass %>%
 ```
 
 
-
+#Step 6
+#what is outdir? Getting an error
 ```{r eval = TRUE}
 
+
+rxlr_orfs <- allorfs_re_effectr_tb %>% 
+  bind_rows(orfs_wys) %>% # join to results of WY searching
+  group_by(ID_isolate, ID, isolate) %>%
+  mutate(isolate = str_remove(isolate, "/")) %>%
+  # I want the methods as a list
+  summarize(methods_list = paste(method, collapse = ",")) %>%
+  filter((grepl("Whis2007", methods_list)) |
+           (grepl("Whis_rxlr", methods_list) & (grepl("Whis_eer", methods_list) | grepl("WY_hmm", methods_list))) |
+           (grepl("Win2007", methods_list) & (grepl("Whis_eer", methods_list) | grepl("WY_hmm", methods_list)))) %>%
+  filter(ID_isolate %in% sp3_tmm_pass$ID_isolate) %>% # filter to secretome
+  group_by(isolate) %>%
+  distinct(ID_isolate)
+
+# Final counts
+rxlr_orfs %>%
+  summarize(noTM_whis_or_whiswinrxlrEER_whiswinrxlrWY_count = n())
+
+# Write final candidates to lists using respective isolate IDs
+#remove temp
+
+#additions
+#outdir <- "output_data")
+out_prefix <- "/orfs_cand_RXLRs_"
+
+allorfs_re_effectr_tb %>%
+  ungroup() %>%
+  distinct(ID_isolate, .keep_all = TRUE) %>%
+  select(ID, isolate) %>%
+  group_by(isolate) %>%
+  group_walk(~ writeLines(.x$ID, paste0("output_data", out_prefix, .y$isolate, ".txt")))
 ```
 
+#Step 7
+#Requires AGAT
+```{bash eval = TRUE}
+#In bash environment, change directory names if needed
+outdir="output_data"
+assembly_dir="."
+rxlr_prefix="orfs_cand_RXLRs_"
+# Run on all genomes being annotated
+for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
+  # Establish output file name conventions
+  list_name=$(basename --suffix ".txt" $orf_rxlr_list)
+  iso_name=$(echo $list_name | sed "s/$rxlr_prefix//")
+  echo $iso_name
+  assembly=$(ls data/${iso_name}.fasta) || \
+    assembly=$(ls data/other_refs/${iso_name}.fasta)
 
-```{r eval = TRUE}
+  # If needed, replace 70 with minimum protein length chosen.
+  orfs="$outdir/${iso_name}.orfs-min70long.start2stop.fasta"
+
+  # Obtain nationality. First get long ORF names from abbreviated.
+  grep -w -f $orf_rxlr_list $orfs | sed 's/>//' > $outdir/${list_name}_longnames.list
+  # Next convert ORF tag list to GFF
+  Rscript scripts/getorf_seqnames2gff.R -i $outdir/${list_name}_longnames.list
+
+  # Notifies about overlapping genes
+  agat_sp_fix_overlaping_genes.pl -f $outdir/${list_name}_longnames.gff \
+  -o $outdir/${list_name}_longnames.merge_ovlp.gff
+  
+  # If genes need merging, pick ORFs by hand or use output from above
+  agat_sp_add_start_and_stop.pl --gff $outdir/${list_name}_longnames.gff \
+  --fasta $assembly \
+  --output $outdir/${list_name}_longnames.str_stp.gff
+done
 
 ```
 
