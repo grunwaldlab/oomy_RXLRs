@@ -364,6 +364,24 @@ cmd = "python '%s' 'euk' '%i' '%s' '%s' '%s'" % (
     signalp_input_file,
     signalp_output_file,
 )
+
+def parse_signalp(filename):
+    """Parse SignalP output, yield tuples of values.
+
+    Returns tuples of ID, HMM_Sprob_score and NN predicted signal
+    peptide length.
+
+    For signal peptide length we use NN_Ymax_pos (minus one).
+    """
+    handle = open(filename)
+    line = handle.readline()
+    assert line.startswith("#ID\t"), line
+    for line in handle:
+        parts = line.rstrip("\t").split("\t")
+        assert len(parts) == 20, repr(line)
+        yield parts[0], float(parts[18]), int(parts[5]) - 1
+    handle.close()
+
 return_code = os.system(cmd)
 if return_code:
     sys.exit("Error %i from SignalP:\n%s" % (return_code, cmd))
@@ -393,22 +411,6 @@ if model.lower() == "secretome":
     print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     sys.exit()
 
-def parse_signalp(filename):
-    """Parse SignalP output, yield tuples of values.
-
-    Returns tuples of ID, HMM_Sprob_score and NN predicted signal
-    peptide length.
-
-    For signal peptide length we use NN_Ymax_pos (minus one).
-    """
-    handle = open(filename)
-    line = handle.readline()
-    assert line.startswith("#ID\t"), line
-    for line in handle:
-        parts = line.rstrip("\t").split("\t")
-        assert len(parts) == 20, repr(line)
-        yield parts[0], float(parts[18]), int(parts[5]) - 1
-    handle.close()
 
 # Parse SignalP results and apply the strict RXLR criteria
 total = 0
