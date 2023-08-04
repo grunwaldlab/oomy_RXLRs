@@ -61,12 +61,14 @@ from __future__ import print_function
 import os
 import sys
 import tempfile
+import subprocess
 
 from seq_analysis_utils import fasta_iterator, split_fasta
 from seq_analysis_utils import run_jobs, thread_count
 
 FASTA_CHUNK = 500
 MAX_LEN = 6000  # Found by trial and error
+signalp_exe = "signalp"
 
 if "-v" in sys.argv or "--version" in sys.argv:
     print("SignalP Galaxy wrapper version 0.0.19.\nPlease cite Cock et al. 2013 DOI:10.7717/peerj.167")
@@ -107,6 +109,19 @@ else:
 
 tmp_dir = tempfile.mkdtemp()
 
+def get_signalp_version(exe, required=None):
+    try:
+        child = subprocess.Popen(
+            [exe, "-v"],
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except OSError:
+        raise ValueError("Could not run %s" % exe) 
+    stdout, stderr = child.communicate()
+if not get_signalp_version(signalp_exe, "3.0b, Dec 2005"):
+    sys.exit("Missing signalp-3.0b, Dec 2005 binary, %s" % signalp_exe)
 
 def clean_tabular(raw_handle, out_handle, gff_handle=None):
     """Clean up SignalP output to make it tabular."""
@@ -212,7 +227,7 @@ fasta_files = split_fasta(
 temp_files = [f + ".out" for f in fasta_files]
 assert len(fasta_files) == len(temp_files)
 jobs = [
-    "signalp -short -t %s %s > %s" % (organism, fasta, temp)
+    "%s -short -t %s %s > %s" % (signalp_exe, organism, fasta, temp)
     for (fasta, temp) in zip(fasta_files, temp_files)
 ]
 assert len(fasta_files) == len(temp_files) == len(jobs)
