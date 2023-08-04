@@ -6,6 +6,14 @@ date: "2023-08-04"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("seqinr")
+library("tidyverse")
+#library("dplyr")
+#library("stringr")
+#library("purrr")
+#library("readr")
+#devtools::load_all('~/software/effectR-nick_edits/')
+library('effectR')
 ```
 
 # Martha's notes in real time-not polished at this point (will revise later)
@@ -61,7 +69,6 @@ egrep -v '^#' output_data/${orfs_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > 
 #Not sure, but cannot run this code chunk after first. I need to paste code above last lines of first code chunk-maybe it forgets variable names between chunks (I am not as well versed in Rmarkdown)
 ```{r eval = TRUE}
 source("scripts/secretion_funcs.R")
-library("tidyverse")
 
 wy_list_regex <- "*.orfs-min70long.start2stop.rxlr_WYfold_hmm.list"
 orfs_wys <-  list.files(path = "output_data//",
@@ -71,8 +78,8 @@ orfs_wys <-  list.files(path = "output_data//",
   mutate("method" = "WY_hmm")
 ```
 
-
-```{r}
+#This should go above step four in instructions
+```{r eval=FALSE}
 effectr_eer_sp3 <- function(seqs_file, sp3_file, isolate_name = NULL) {
   # Read in seqs to scan 
   orfs <- read.fasta(seqs_file)
@@ -127,16 +134,10 @@ effectr_eer_sp3 <- function(seqs_file, sp3_file, isolate_name = NULL) {
 }
 ```
 
-
+#Step four in instructinos
 ```{r eval = TRUE}
 #Need 
-library("seqinr")
-library("dplyr")
-library("stringr")
-library("purrr")
-library("readr")
-#devtools::load_all('~/software/effectR-nick_edits/')
-library('effectR')
+
 
 # Locate files programmatically in R environment
 # all ORFs:
