@@ -12,8 +12,11 @@ library("tidyverse")
 #library("stringr")
 #library("purrr")
 #library("readr")
-#devtools::load_all('~/software/effectR-nick_edits/')
+devtools::load_all('~/software/effectR-nick_edits/')
 library('effectR')
+devtools::load_all("~/software/iSecrete-master/")
+library('iSecrete')
+source("scripts/secretion_funcs.R")
 ```
 
 # Martha's notes in real time-not polished at this point (will revise later)
@@ -68,7 +71,7 @@ egrep -v '^#' output_data/${orfs_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > 
 
 #Not sure, but cannot run this code chunk after first. I need to paste code above last lines of first code chunk-maybe it forgets variable names between chunks (I am not as well versed in Rmarkdown)
 ```{r eval = TRUE}
-source("scripts/secretion_funcs.R")
+#source("scripts/secretion_funcs.R")
 
 wy_list_regex <- "*.orfs-min70long.start2stop.rxlr_WYfold_hmm.list"
 orfs_wys <-  list.files(path = "output_data//",
@@ -78,61 +81,6 @@ orfs_wys <-  list.files(path = "output_data//",
   mutate("method" = "WY_hmm")
 ```
 
-#This should go above step four in instructions
-```{r eval=FALSE}
-effectr_eer_sp3 <- function(seqs_file, sp3_file, isolate_name = NULL) {
-  # Read in seqs to scan 
-  orfs <- read.fasta(seqs_file)
-  # Read signalp3 output from all possible candidates
-  sp3 <- read_tsv(sp3_file, show_col_types = FALSE, id = "fpath") %>%
-    mutate("isolate" = str_extract(fpath, ".*(?=\\.orfs)")) %>%
-    mutate(isolate = str_remove(isolate, ".*data/*")) %>%
-    filter(HMM_Sprob_score >= 0.9) %>%
-    rename("ID" = `#ID`)
-  if(is.null(isolate_name)) {
-    isolate_name <- pull(sp3, isolate)[1]
-  }
-  
-  # Search new regexes
-  re_win <- regex.search(orfs, motif = "Win2007")
-  re_whis <- regex.search(orfs, motif = "Whisson2007")
-  re_whis_rxlr <- regex.search(orfs, motif = "Whisson2007_rxlr")
-  re_whis_eer <- regex.search(orfs, motif = "Whisson2007_eer")
-  
-  # Get all names passing regex
-  re_win_sp_names <- data.frame("method" = "Win2007",
-                                "ID" = names(re_win)[names(re_win) %in% sp3$ID])
-  re_whis_sp_names <- data.frame("method" = "Whis2007",
-                                 "ID" = names(re_whis)[names(re_whis) %in% sp3$ID])
-  re_whis_rxlr_sp_names <- data.frame("method" = "Whis_rxlr",
-                                      "ID" = names(re_whis_rxlr)[names(re_whis_rxlr) %in% sp3$ID])
-  re_whis_eer_sp_names <- data.frame("method" = "Whis_eer",
-                                 "ID" = names(re_whis_eer)[names(re_whis_eer) %in% sp3$ID])
-  
-  # Compile numbers of hits before and after filtering for signalp3 threshold
-  n_hits_df <- tibble("regex_method" = c("secreted_ORFs", "Win2007", "Whisson2007", "Whisson_RXLR", "Whisson_EER"),
-                      "n_hits_tot" = c(NA,
-                                       length(re_win),
-                                       length(re_whis),
-                                       length(re_whis_rxlr),
-                                       length(re_whis_eer)),
-                      "n_hits_sp3" = c(nrow(sp3),
-                                       nrow(re_win_sp_names),
-                                       nrow(re_whis_sp_names),
-                                       nrow(re_whis_rxlr_sp_names),
-                                       nrow(re_whis_eer_sp_names)),
-                      "isolate" = rep(isolate_name, 5)
-  )
-  
-  print(n_hits_df)
-  # Choose one list of names to return from function
-  # Probably EER but I don't think my summary func is working for that motif yet
-  all_names_hits <- bind_rows(
-    re_whis_sp_names, re_win_sp_names, re_whis_rxlr_sp_names, re_whis_eer_sp_names) %>%
-    mutate("isolate" = isolate_name)
-  return(all_names_hits)
-}
-```
 
 #Step four in instructinos
 ```{r eval = TRUE}
@@ -168,4 +116,51 @@ allorfs_re_effectr_tb <- tibble(bind_rows(allorfs_re_effectr)) %>%
   unite("ID_isolate", ID, isolate, sep=":", remove = FALSE)
 ```
 
-#I don't have 'effectr_eer_sp3'. I think we may be missing a code chunk
+#Step 5
+#error protein column doesn't exist
+```{r eval = TRUE}
+sp3_fs_re <- ".*orfs-min70long.start2stop.rxlr_signalpep.outsp3_tabular.tmp"
+sp3_fs <- list.files(path = "annotation/effectors/output_data/",
+                                pattern = sp3_fs_re, full.names = TRUE)
+tmm_fs_re <- ".*orfs-min70long.start2stop.tmhmm.out"
+tmm_fs <- list.files(path= "annotation/effectors/output_data/",
+                                pattern = tmm_fs_re, full.names = TRUE)
+
+# make dataframe for easier function running
+# and validate the signalp and tmhmm runs line up
+sp3_tmm_fs <- tibble("sp3_f" = sp3_fs,
+                     "tmm_f" = tmm_fs) %>%
+  mutate("isolate_s" = str_extract(sp3_f, "(?<=//).*(?=\\.orfs)")) %>%
+  mutate("isolate_t" = str_extract(tmm_f, "(?<=//).*(?=\\.orfs)"))
+
+# parse signalP and tmhmm output files.
+# filters based on HMM_Sprob_score of signalp
+# and position of helix relative to most likely signal peptide position
+
+#Error no proteins
+sp3_tmm_pass <- pmap(sp3_tmm_fs, ~ read_prune_tms(..1, ..2, ..3), .id = 'isolate') %>%
+  bind_rows() %>%
+  unite("ID_isolate", Protein, isolate, sep=":", remove = FALSE)
+
+# Size of complete secretome
+sp3_tmm_pass %>%
+  filter(HMM_Sprob_score >= 0.9) %>%
+  distinct(ID_isolate, .keep_all = TRUE) %>%
+  group_by(isolate) %>%
+  summarize(n_noTM_yesSP = n())
+```
+
+
+
+```{r eval = TRUE}
+
+```
+
+
+```{r eval = TRUE}
+
+```
+
+
+
+
