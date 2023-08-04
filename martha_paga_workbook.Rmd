@@ -71,12 +71,73 @@ orfs_wys <-  list.files(path = "output_data//",
   mutate("method" = "WY_hmm")
 ```
 
+
+```{r}
+effectr_eer_sp3 <- function(seqs_file, sp3_file, isolate_name = NULL) {
+  # Read in seqs to scan 
+  orfs <- read.fasta(seqs_file)
+  # Read signalp3 output from all possible candidates
+  sp3 <- read_tsv(sp3_file, show_col_types = FALSE, id = "fpath") %>%
+    mutate("isolate" = str_extract(fpath, ".*(?=\\.orfs)")) %>%
+    mutate(isolate = str_remove(isolate, ".*data/*")) %>%
+    filter(HMM_Sprob_score >= 0.9) %>%
+    rename("ID" = `#ID`)
+  if(is.null(isolate_name)) {
+    isolate_name <- pull(sp3, isolate)[1]
+  }
+  
+  # Search new regexes
+  re_win <- regex.search(orfs, motif = "Win2007")
+  re_whis <- regex.search(orfs, motif = "Whisson2007")
+  re_whis_rxlr <- regex.search(orfs, motif = "Whisson2007_rxlr")
+  re_whis_eer <- regex.search(orfs, motif = "Whisson2007_eer")
+  
+  # Get all names passing regex
+  re_win_sp_names <- data.frame("method" = "Win2007",
+                                "ID" = names(re_win)[names(re_win) %in% sp3$ID])
+  re_whis_sp_names <- data.frame("method" = "Whis2007",
+                                 "ID" = names(re_whis)[names(re_whis) %in% sp3$ID])
+  re_whis_rxlr_sp_names <- data.frame("method" = "Whis_rxlr",
+                                      "ID" = names(re_whis_rxlr)[names(re_whis_rxlr) %in% sp3$ID])
+  re_whis_eer_sp_names <- data.frame("method" = "Whis_eer",
+                                 "ID" = names(re_whis_eer)[names(re_whis_eer) %in% sp3$ID])
+  
+  # Compile numbers of hits before and after filtering for signalp3 threshold
+  n_hits_df <- tibble("regex_method" = c("secreted_ORFs", "Win2007", "Whisson2007", "Whisson_RXLR", "Whisson_EER"),
+                      "n_hits_tot" = c(NA,
+                                       length(re_win),
+                                       length(re_whis),
+                                       length(re_whis_rxlr),
+                                       length(re_whis_eer)),
+                      "n_hits_sp3" = c(nrow(sp3),
+                                       nrow(re_win_sp_names),
+                                       nrow(re_whis_sp_names),
+                                       nrow(re_whis_rxlr_sp_names),
+                                       nrow(re_whis_eer_sp_names)),
+                      "isolate" = rep(isolate_name, 5)
+  )
+  
+  print(n_hits_df)
+  # Choose one list of names to return from function
+  # Probably EER but I don't think my summary func is working for that motif yet
+  all_names_hits <- bind_rows(
+    re_whis_sp_names, re_win_sp_names, re_whis_rxlr_sp_names, re_whis_eer_sp_names) %>%
+    mutate("isolate" = isolate_name)
+  return(all_names_hits)
+}
+```
+
+
 ```{r eval = TRUE}
 #Need 
 library("seqinr")
 library("dplyr")
 library("stringr")
 library("purrr")
+library("readr")
+#devtools::load_all('~/software/effectR-nick_edits/')
+library('effectR')
+
 # Locate files programmatically in R environment
 # all ORFs:
 orf_fs_re <- ".*orfs-min70long.start2stop.fasta"
