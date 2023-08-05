@@ -68,6 +68,7 @@ from seq_analysis_utils import run_jobs, thread_count
 
 FASTA_CHUNK = 500
 MAX_LEN = 6000  # Found by trial and error
+# If getting errors about signalp not being found, try specifying /absolute/path/to/signalp below
 signalp_exe = "signalp"
 
 if "-v" in sys.argv or "--version" in sys.argv:
@@ -109,6 +110,8 @@ else:
 
 tmp_dir = tempfile.mkdtemp()
 
+# TODO: Force exit if not signalp3.
+# Signalp 4 hangs with -v, sp 5 does error out
 def get_signalp_version(exe, required=None):
     try:
         child = subprocess.Popen(
@@ -120,6 +123,7 @@ def get_signalp_version(exe, required=None):
     except OSError:
         raise ValueError("Could not run %s" % exe) 
     stdout, stderr = child.communicate()
+    print(stdout)
     if required:
         return required in stdout
     elif "3.0b" in stdout:
