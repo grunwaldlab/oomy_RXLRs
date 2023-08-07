@@ -4,7 +4,7 @@ output: html_document
 date: "2023-08-04"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 library("seqinr")
 library("tidyverse")
@@ -191,8 +191,11 @@ allorfs_re_effectr_tb %>%
 #Requires AGAT
 ```{bash eval = TRUE}
 #In bash environment, change directory names if needed
+eval "$(conda shell.bash hook)"
+conda activate agat
 outdir="output_data"
-assembly_dir="."
+#change
+assembly_dir="data"
 rxlr_prefix="orfs_cand_RXLRs_"
 # Run on all genomes being annotated
 for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
@@ -200,8 +203,8 @@ for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
   list_name=$(basename --suffix ".txt" $orf_rxlr_list)
   iso_name=$(echo $list_name | sed "s/$rxlr_prefix//")
   echo $iso_name
-  assembly=$(ls data/${iso_name}.fasta) || \
-    assembly=$(ls data/other_refs/${iso_name}.fasta)
+  assembly=$(ls ${assembly_dir}/${iso_name}.fasta) || \
+    assembly=$(ls ${assembly_dir}/other_refs/${iso_name}.fasta)
 
   # If needed, replace 70 with minimum protein length chosen.
   orfs="$outdir/${iso_name}.orfs-min70long.start2stop.fasta"
@@ -223,6 +226,34 @@ done
 
 ```
 
+```{bash eval = TRUE}
+# Same code as Section 3.1 Step 7 to name variables and start loop
+eval "$(conda shell.bash hook)"
+conda activate agat
+outdir="output_data"
+assembly_dir="data"
+rxlr_prefix="orfs_cand_RXLRs_"
+# Run on all genomes being annotated
+for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
+  # Establish output file name conventions
+  list_name=$(basename --suffix ".txt" $orf_rxlr_list)
+  iso_name=$(echo $list_name | sed "s/$rxlr_prefix//")
+  echo $iso_name
+  assembly=$(ls ${assembly_dir}/${iso_name}.fasta) || \
+    assembly=$(ls ${assembly_dir}/other_refs/${iso_name}.fasta)
 
+  # The next line of code needs to match FASTA file-naming convention to GFF.
+  # As is, it converts "Plate_genome.fasta" to match "Plate_combine.gff" and 
+  # "PR-102_v4.fasta" to match "PHRA102.gff"
+  iso_prefix=$(echo $iso_name | sed 's/genome/combine/' | \
+    sed 's/PR/PHRA/' | sed 's/-//g' | sed -e 's/_v.*//')
 
+  # Re-name gene features
+  agat_sp_manage_IDs.pl --tair --type_dependent \
+    --prefix "${iso_prefix}_rxlrORF" \
+    --nb 1 --gff $outdir/${list_name}_longnames.str_stp.gff \
+    --output $outdir/${list_name}_longnames.str_stp.re-IDs.gff
 
+  # TODO: Add gene supplementation code here.
+done
+```
