@@ -8,10 +8,6 @@ date: "2023-08-04"
 knitr::opts_chunk$set(echo = TRUE)
 library("seqinr")
 library("tidyverse")
-#library("dplyr")
-#library("stringr")
-#library("purrr")
-#library("readr")
 devtools::load_all('~/software/effectR-nick_edits/')
 library('effectR')
 devtools::load_all("~/software/iSecrete-master/")
@@ -20,29 +16,33 @@ source("scripts/secretion_funcs.R")
 library("optparse")
 ```
 
-# Martha's notes in real time-not polished at this point (will revise later)
-# To install emboss I used following command on Linux computer: 
-# sudo apt install emboss
-# NOTE-to define 'isolate' variable-needed to fix suffix to -s rather than -suffix, or else there were errors
+### Martha's notes in real time-not polished at this point (will revise later)
+To install emboss I used following command on Linux computer:  'sudo apt install emboss'  
+NOTE-to define 'isolate' variable-needed to fix suffix to -s rather than -suffix, or else there were errors  
+When I install tmhmm from DTU health, I get this note:  
+NOTE: TMHMM-2.0 is outdated. A more recent and better transmembrane predictor, DeepTMHMM, has beenreleased and is available at https://services.healthtech.dtu.dk/service.php?DeepTMHMM. 
+
+### Things to clarify  
+Make clear what version of signalP. V 3.0 is mentioned once in instruction but not explicitely, but the latest version is 5--so you do have to dig for an earlier version.
+
+# Downloaded SignalP3.0 from same source-dtu.dk site.  
+Something to maybe share with beginner users-Install instructions are in READMES and nowhere online! 
+
+### Early error logs and trouble shooting
+seq_analysis_utils-where is this? I cannot automatically import this using rxlr_signalpeptide.py script  
+It turns out that this is where you do need to use python2.7.  I used pip to install v 2.7.  
+
+I also needed several other packages but it wasn't entirely clear until I started running the scripts; this is a bit clunky using Rmarkdown. Maybe a readme file is preferable with the code chunks--I'll see as I go.  
 
 
-#When I install tmhmm from DTU health, I get this note:
-#NOTE: TMHMM-2.0 is outdated. A more recent and better transmembrane predictor, DeepTMHMM, has been #released and is available at https://services.healthtech.dtu.dk/service.php?DeepTMHMM. 
+#Weirdly couldn't run second set of commands in separate code chunks-so that is why there is one large code chunk. 
 
-# Make clear what version of signalP. V 3.0 is mentioned once in instruction but not explicitely, but the latest version is 5--so you do have to dig for an earlier version.
-#Downloade SignalP3.0 from same source. Install instructions are in READMES and nowhere online! 
-#Note for signalP I had to copy signalp to /usr/bin. This was key for getting it to work
-
-#error: seq_analysis_utils-where is this? I cannot automatically import this using rxlr_signalpeptide.py script
-#This is where you do need to use python2.7. This also requires installing another python version on newer computers. I used pip to install v 2.7. 
-#I also needed several other packages; this is a bit clunky using Rmarkdown. Maybe a readme file is preferable with the code chunks--I'll see as I go.  
-
-
-#Weirdly couldn't run second set of commands in separate code chunks. 
+### Step 1 and Step 2
 ```{bash, eval = TRUE}
 #Step 1
 mkdir output_data
 genome="data/Paga_3770v2_chr10.fasta"
+#Note for signalP I had to copy signalp to /usr/bin. This was key for getting it to work
 isolate=$(basename -s ".fasta" ${genome})
 minsize_aa=70 # amino acids
 minsize_nt=210 # minsize_aa*3 = number of nucleotides
@@ -65,12 +65,9 @@ hmmsearch --cpu 4 --seed 123 -T 0 --tblout output_data/${orfs_name}.rxlr_WYfold_
 
 # simple list of candidates
 egrep -v '^#' output_data/${orfs_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > output_data/${orfs_name}.rxlr_WYfold_hmm.list
-
-
-
 ```
 
-#Not sure, but cannot run this code chunk after first. I need to paste code above last lines of first code chunk-maybe it forgets variable names between chunks (I am not as well versed in Rmarkdown)
+### Step 3
 ```{r eval = TRUE}
 #source("scripts/secretion_funcs.R")
 
@@ -83,7 +80,7 @@ orfs_wys <-  list.files(path = "output_data//",
 ```
 
 
-#Step four in instructinos
+### Step 4
 ```{r eval = TRUE}
 
 # Locate files programmatically in R environment
@@ -115,8 +112,7 @@ allorfs_re_effectr_tb <- tibble(bind_rows(allorfs_re_effectr)) %>%
   unite("ID_isolate", ID, isolate, sep=":", remove = FALSE)
 ```
 
-#Step 5
-#error protein column doesn't exist
+### Step 5
 ```{r eval = TRUE}
 sp3_fs_re <- ".*orfs-min70long.start2stop.rxlr_signalpep.outsp3_tabular.tmp"
 sp3_fs <- list.files(path = "output_data/",
@@ -150,11 +146,8 @@ sp3_tmm_pass %>%
 ```
 
 
-#Step 6
-#what is outdir? Getting an error
+### Step 6 
 ```{r eval = TRUE}
-
-
 rxlr_orfs <- allorfs_re_effectr_tb %>% 
   bind_rows(orfs_wys) %>% # join to results of WY searching
   group_by(ID_isolate, ID, isolate) %>%
@@ -187,8 +180,8 @@ allorfs_re_effectr_tb %>%
   group_walk(~ writeLines(.x$ID, paste0("output_data", out_prefix, .y$isolate, ".txt")))
 ```
 
-#Step 7
-#Requires AGAT
+### Step 7 
+### Requires AGAT, and need to fix path to assembly files
 ```{bash eval = TRUE}
 #In bash environment, change directory names if needed
 eval "$(conda shell.bash hook)"
@@ -225,6 +218,8 @@ for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
 done
 
 ```
+
+### Step 8
 
 ```{bash eval = TRUE}
 # Same code as Section 3.1 Step 7 to name variables and start loop
