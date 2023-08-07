@@ -3,6 +3,8 @@ title: "Martha_paga_rxlr_workbook"
 output: html_document
 date: "2023-08-04"
 ---
+### Martha's notes in real time-not polished at this point (will revise later)
+### Can we try to install and set up all package before getting to individual code chunks? 
 
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -16,7 +18,7 @@ source("scripts/secretion_funcs.R")
 library("optparse")
 ```
 
-### Martha's notes in real time-not polished at this point (will revise later)
+### Notes
 To install emboss I used following command on Linux computer:  'sudo apt install emboss'  
 NOTE-to define 'isolate' variable-needed to fix suffix to -s rather than -suffix, or else there were errors  
 When I install tmhmm from DTU health, I get this note:  
@@ -69,8 +71,6 @@ egrep -v '^#' output_data/${orfs_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > 
 
 ### Step 3
 ```{r eval = TRUE}
-#source("scripts/secretion_funcs.R")
-
 wy_list_regex <- "*.orfs-min70long.start2stop.rxlr_WYfold_hmm.list"
 orfs_wys <-  list.files(path = "output_data//",
                                 pattern = wy_list_regex, full.names = TRUE) %>%
@@ -82,7 +82,6 @@ orfs_wys <-  list.files(path = "output_data//",
 
 ### Step 4
 ```{r eval = TRUE}
-
 # Locate files programmatically in R environment
 # all ORFs:
 orf_fs_re <- ".*orfs-min70long.start2stop.fasta"
