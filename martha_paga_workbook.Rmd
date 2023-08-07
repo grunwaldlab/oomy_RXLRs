@@ -19,7 +19,7 @@ library("optparse")
 ```
 
 ### Notes
-To install emboss I used following command on Linux computer:  'sudo apt install emboss'  
+To install EMBOSS I used following command on Linux computer:  'sudo apt install emboss'  
 NOTE-to define 'isolate' variable-needed to fix suffix to -s rather than -suffix, or else there were errors  
 When I install tmhmm from DTU health, I get this note:  
 NOTE: TMHMM-2.0 is outdated. A more recent and better transmembrane predictor, DeepTMHMM, has beenreleased and is available at https://services.healthtech.dtu.dk/service.php?DeepTMHMM. 
