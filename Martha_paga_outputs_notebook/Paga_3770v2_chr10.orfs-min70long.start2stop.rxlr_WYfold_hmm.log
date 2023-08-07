@@ -1,0 +1,388 @@
+# hmmsearch :: search profile(s) against a sequence database
+# HMMER 3.3.2 (Nov 2020); http://hmmer.org/
+# Copyright (C) 2020 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query HMM file:                  data/WY_fold.hmm
+# target sequence database:        output_data/Paga_3770v2_chr10.orfs-min70long.start2stop.fasta
+# per-seq hits tabular output:     output_data/Paga_3770v2_chr10.orfs-min70long.start2stop.rxlr_WYfold_hmm.out
+# sequence reporting threshold:    score >= 0
+# random number seed set to:       123
+# number of worker threads:        4
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       WY_fold  [M=49]
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence        Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------        -----------
+    2.5e-71  232.9  20.7    1.5e-16   58.2   0.2    6.6  7  Pag3770_10_4078  [788713 - 786857] (REVERSE SENSE) 
+    1.5e-39  131.6  16.6      1e-13   49.1   0.4    5.6  5  Pag3770_10_3187  [1535037 - 1533511] (REVERSE SENSE) 
+    3.9e-39  130.3  15.1    6.1e-14   49.9   0.1    5.5  5  Pag3770_10_3258  [1444811 - 1443309] (REVERSE SENSE) 
+      2e-27   92.9  10.6    1.6e-12   45.3   0.8    3.6  3  Pag3770_10_3927  [961649 - 960657] (REVERSE SENSE) 
+    2.6e-21   73.4  10.8      8e-11   40.0   0.2    3.9  3  Pag3770_10_3069  [1619324 - 1618092] (REVERSE SENSE) 
+    6.2e-20   69.0   1.1    2.2e-14   51.3   0.1    2.4  2  Pag3770_10_1702  [1564357 - 1565166] 
+    1.1e-19   68.2   1.1      3e-14   50.9   0.1    2.5  2  Pag3770_10_3147  [1558775 - 1557792] (REVERSE SENSE) 
+    1.1e-17   61.8  10.2    1.2e-10   39.4   0.2    3.8  4  Pag3770_10_2899  [1773184 - 1772114] (REVERSE SENSE) 
+    2.4e-13   48.0   0.6    3.7e-13   47.4   0.6    1.3  1  Pag3770_10_2741  [1898695 - 1898207] (REVERSE SENSE) 
+    1.9e-12   45.1   1.0    1.4e-07   29.6   0.0    2.6  2  Pag3770_10_1703  [1565424 - 1565858] 
+    1.9e-12   45.1   1.0    1.4e-07   29.6   0.0    2.6  2  Pag3770_10_3148  [1557534 - 1557100] (REVERSE SENSE) 
+    8.5e-11   39.9   8.0    3.2e-07   28.4   1.1    2.7  2  Pag3770_10_2743  [1897941 - 1897363] (REVERSE SENSE) 
+    9.7e-10   36.5   1.1    2.3e-09   35.3   1.1    1.7  1  Pag3770_10_3023  [1664294 - 1663554] (REVERSE SENSE) 
+
+
+Domain annotation for each sequence (and alignments):
+>> Pag3770_10_4078  [788713 - 786857] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   -3.4   0.0       7.9     3e+03      12      24 ..     112     124 ..     111     126 .. 0.86
+   2 !   22.4   0.2   6.8e-08   2.6e-05      17      46 ..     177     206 ..     174     209 .. 0.93
+   3 !   55.8   0.3   2.3e-18   8.8e-16       3      49 .]     255     301 ..     253     301 .. 0.97
+   4 !   58.2   0.2   3.9e-19   1.5e-16       3      49 .]     340     386 ..     338     386 .. 0.96
+   5 !   53.7   0.1     1e-17   3.8e-15       4      49 .]     426     471 ..     424     471 .. 0.96
+   6 ?   -1.9   0.0       2.8   1.1e+03      14      32 ..     472     490 ..     472     492 .. 0.87
+   7 !   53.7   0.2     1e-17     4e-15       4      48 ..     511     555 ..     509     556 .. 0.97
+
+  Alignments for each domain:
+  == domain 1  score: -3.4 bits;  conditional E-value: 7.9
+          WY_fold  12 WlkkgkspddVFk 24 
+                      W ++  ++d V +
+  Pag3770_10_4078 112 WRSNPQTTDTVHT 124
+                      999999***9975 PP
+
+  == domain 2  score: 22.4 bits;  conditional E-value: 6.8e-08
+          WY_fold  17 kspddVFklLkLdkagdklltspnfktWvk 46 
+                       s+dd+F+ +k+dka+++l++s +f  W k
+  Pag3770_10_4078 177 QSADDLFTQFKVDKAASNLFESAQFLQWSK 206
+                      69**************************87 PP
+
+  == domain 3  score: 55.8 bits;  conditional E-value: 2.3e-18
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      kl++ q+k+W ++ k+ + VFklLkLd+ g+kll sp+++tW++Y++
+  Pag3770_10_4078 255 KLENIQMKNWATESKTSENVFKLLKLDEEGEKLLQSPLMSTWISYTT 301
+                      8********************************************85 PP
+
+  == domain 4  score: 58.2 bits;  conditional E-value: 3.9e-19
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                       l++aql+ W++ + s ddVFklLkLd+ g+kll sp+  tW++Y++
+  Pag3770_10_4078 340 ELETAQLNFWMSTKTSSDDVFKLLKLDEEGEKLLQSPLIGTWISYTT 386
+                      69*******************************************85 PP
+
+  == domain 5  score: 53.7 bits;  conditional E-value: 1e-17
+          WY_fold   4 lqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +++aql+ W +++ ++ddVF+lLkL+  g+kl++sp+ +tW++Y++
+  Pag3770_10_4078 426 MEAAQLNFWVTRKTTTDDVFDLLKLQHEGTKLFESPLVSTWIAYTT 471
+                      699*****************************************85 PP
+
+  == domain 6  score: -1.9 bits;  conditional E-value: 2.8
+          WY_fold  14 kkgkspddVFklLkLdkag 32 
+                      k+gk+p ++++ ++ d+ag
+  Pag3770_10_4078 472 KMGKNPYELLRTMHYDDAG 490
+                      689*****99999988887 PP
+
+  == domain 7  score: 53.7 bits;  conditional E-value: 1e-17
+          WY_fold   4 lqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYv 48 
+                      +++aqlk W++ + + +dVFklL+L+k g+ +++sp ++tWv+Y+
+  Pag3770_10_4078 511 MEAAQLKFWMNVKETGEDVFKLLNLKKEGTRVFESPAWSTWVSYL 555
+                      699*****************************************8 PP
+
+>> Pag3770_10_3187  [1535037 - 1533511] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   16.7   0.1   3.9e-06    0.0015       8      49 .]      88     129 ..      84     129 .. 0.91
+   2 !   49.1   0.4   2.7e-16     1e-13       3      49 .]     177     223 ..     176     223 .. 0.97
+   3 !   27.1   0.4   2.2e-09   8.2e-07       1      48 [.     267     314 ..     267     315 .. 0.83
+   4 !   35.3   0.1   6.2e-12   2.4e-09       1      49 []     357     405 ..     357     405 .. 0.98
+   5 !   11.6   0.1   0.00016      0.06       1      21 [.     447     467 ..     447     471 .. 0.91
+
+  Alignments for each domain:
+  == domain 1  score: 16.7 bits;  conditional E-value: 3.9e-06
+          WY_fold   8 qlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +l+ +l++  + ++V+++LkL++  ++ l++p++  +  Yv+
+  Pag3770_10_3187  88 MLQTYLQSADDGKQVLNKLKLGDNIADTLANPKLGLLSEYVT 129
+                      5777888888899***************************96 PP
+
+  == domain 2  score: 49.1 bits;  conditional E-value: 2.7e-16
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +l+k+q++ W+k g+s+ddVF+lLkL + g+k+l+ ++++++++Y+k
+  Pag3770_10_3187 177 ALRKEQMRDWFKGGRSADDVFDLLKLREEGYKALATRKLEVLEDYIK 223
+                      699******************************************97 PP
+
+  == domain 3  score: 27.1 bits;  conditional E-value: 2.2e-09
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYv 48 
+                      a+ +++ ++kkWl+k+  p++VFk+LkLd+    ++    +++ +kYv
+  Pag3770_10_3187 267 ANEMEAMLFKKWLAKDELPESVFKKLKLDGNLLIAFRPTYLNAIAKYV 314
+                      577899***********************9877777666666666666 PP
+
+  == domain 4  score: 35.3 bits;  conditional E-value: 6.2e-12
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      ak+l  +q+ +W+++gks+ddV+ +L+L+  g+ + +s +  ++++Y+k
+  Pag3770_10_3187 357 AKTLLREQMLSWFSSGKSVDDVYAILRLQQEGAAAINSWKVDVLTAYIK 405
+                      799********************************************97 PP
+
+  == domain 5  score: 11.6 bits;  conditional E-value: 0.00016
+          WY_fold   1 akklqkaqlkkWlkkgkspdd 21 
+                      a++lq +q+k W  +g  p+ 
+  Pag3770_10_3187 447 ATRLQEKQFKMWVEDGVKPKT 467
+                      89****************986 PP
+
+>> Pag3770_10_3258  [1444811 - 1443309] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   15.3   0.1   1.1e-05    0.0044      18      49 .]      91     122 ..      74     122 .. 0.85
+   2 !   49.9   0.1   1.6e-16   6.1e-14       3      49 .]     170     216 ..     169     216 .. 0.97
+   3 !   26.9   0.4   2.6e-09   9.9e-07       1      32 [.     259     290 ..     259     307 .. 0.82
+   4 !   34.1   0.0   1.4e-11   5.2e-09       2      49 .]     350     397 ..     349     397 .. 0.97
+   5 !   11.4   0.3   0.00019     0.073       1      21 [.     439     459 ..     439     462 .. 0.92
+
+  Alignments for each domain:
+  == domain 1  score: 15.3 bits;  conditional E-value: 1.1e-05
+          WY_fold  18 spddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +  +V+++LkL++  ++ l++p++ ++  Yv+
+  Pag3770_10_3258  91 DGLQVLNKLKLGDNIADTLANPKLGVLSEYVT 122
+                      5569**************************96 PP
+
+  == domain 2  score: 49.9 bits;  conditional E-value: 1.6e-16
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +l+k+q++ W+k g+s+ddVF+lLkL + g+++lts+ ++++++Y+k
+  Pag3770_10_3258 170 ALRKEQMRDWFKGGRSADDVFDLLKLREEGYTVLTSRRLEVLEDYIK 216
+                      699******************************************97 PP
+
+  == domain 3  score: 26.9 bits;  conditional E-value: 2.6e-09
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdkag 32 
+                      a+ +++ ++kkWl+k+  p++VFk+LkLd+  
+  Pag3770_10_3258 259 ANEMEAMLFKKWLAKDELPESVFKKLKLDDNL 290
+                      577899***********************865 PP
+
+  == domain 4  score: 34.1 bits;  conditional E-value: 1.4e-11
+          WY_fold   2 kklqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      k+l  +q+ +W+++gks+ddV+ +L+L+  g+ + +s +  ++++Y+k
+  Pag3770_10_3258 350 KRLLREQMLSWFSSGKSVDDVYAILRLQQEGAAAINSWKVDVLTAYIK 397
+                      78999*****************************************97 PP
+
+  == domain 5  score: 11.4 bits;  conditional E-value: 0.00019
+          WY_fold   1 akklqkaqlkkWlkkgkspdd 21 
+                      ak+lq +q+k W  +g  p+ 
+  Pag3770_10_3258 439 AKRLQEKQFKMWVEDGVKPKT 459
+                      89****************986 PP
+
+>> Pag3770_10_3927  [961649 - 960657] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   45.3   0.8   4.3e-15   1.6e-12       5      49 .]      81     125 ..      77     125 .. 0.94
+   2 !   42.4   0.3   3.7e-14   1.4e-11       1      49 []     168     216 ..     168     216 .. 0.98
+   3 !   10.5   0.2   0.00035      0.13       1      25 [.     263     287 ..     263     296 .. 0.91
+
+  Alignments for each domain:
+  == domain 1  score: 45.3 bits;  conditional E-value: 4.3e-15
+          WY_fold   5 qkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                       + +l+ Wl k ks+ dV+++LkL++ +dk+l+spn+k++++Y++
+  Pag3770_10_3927  81 DAVKLRVWLIKEKSAADVLTKLKLNERADKALASPNLKVLINYLD 125
+                      6789***************************************96 PP
+
+  == domain 2  score: 42.4 bits;  conditional E-value: 3.7e-14
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      a+klq +ql++Wl ++ks+ dVFk+LkL+++   ++ s++++t+  Yv+
+  Pag3770_10_3927 168 ATKLQLQQLNGWLDSKKSVVDVFKILKLGNDEHLAMMSRKLETLGEYVT 216
+                      89*********************************************96 PP
+
+  == domain 3  score: 10.5 bits;  conditional E-value: 0.00035
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFkl 25 
+                      a k+q+a++ +W  +  +p dV+++
+  Pag3770_10_3927 263 ALKYQNALFTQWAHRELDPMDVLTK 287
+                      5699******************986 PP
+
+>> Pag3770_10_3069  [1619324 - 1618092] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   40.0   0.2   2.1e-13     8e-11       6      46 ..      82     122 ..      78     125 .. 0.93
+   2 !   29.9   0.7     3e-10   1.2e-07       1      31 [.     242     272 ..     242     290 .. 0.92
+   3 !    8.6   0.3    0.0014      0.53       1      22 [.     349     370 ..     349     383 .. 0.83
+
+  Alignments for each domain:
+  == domain 1  score: 40.0 bits;  conditional E-value: 2.1e-13
+          WY_fold   6 kaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvk 46 
+                      + ++k+W +k+ +p dV+k+LkL+++++ +l++p++k+++k
+  Pag3770_10_3069  82 STKIKYWSSKDQTPADVLKMLKLGDDAAAALENPKLKALTK 122
+                      6799**********************************988 PP
+
+  == domain 2  score: 29.9 bits;  conditional E-value: 3e-10
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdka 31 
+                      ak+l ++q  +Wl++gks+ddVF+lLk+ ++
+  Pag3770_10_3069 242 AKQLWTEQQPAWLNSGKSVDDVFTLLKIRND 272
+                      799************************9876 PP
+
+  == domain 3  score: 8.6 bits;  conditional E-value: 0.0014
+          WY_fold   1 akklqkaqlkkWlkkgkspddV 22 
+                      akk+q+a++++W +++  p  V
+  Pag3770_10_3069 349 AKKMQTALFEHWWNQNLQPANV 370
+                      89**************999855 PP
+
+>> Pag3770_10_1702  [1564357 - 1565166] 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   16.4   0.1   4.9e-06    0.0019      18      49 .]      91     122 ..      74     122 .. 0.84
+   2 !   51.3   0.1   5.9e-17   2.2e-14       3      49 .]     170     216 ..     168     216 .. 0.97
+
+  Alignments for each domain:
+  == domain 1  score: 16.4 bits;  conditional E-value: 4.9e-06
+          WY_fold  18 spddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +  +V+++LkL++  ++ l++p++ ++  Yv+
+  Pag3770_10_1702  91 DGLQVLNKLKLGDNIADTLANPKLGVLSEYVT 122
+                      5569**************************96 PP
+
+  == domain 2  score: 51.3 bits;  conditional E-value: 5.9e-17
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +l+k+q++ W+k g+s+ddVF+lLkL + g+++lts+ ++++++Y+k
+  Pag3770_10_1702 170 ALRKEQMRDWFKGGRSADDVFDLLKLREEGYTVLTSRRLEVLEDYIK 216
+                      699******************************************97 PP
+
+>> Pag3770_10_3147  [1558775 - 1557792] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   16.1   0.1   6.5e-06    0.0025      18      49 .]     149     180 ..     132     180 .. 0.84
+   2 !   50.9   0.1   7.9e-17     3e-14       3      49 .]     228     274 ..     226     274 .. 0.97
+
+  Alignments for each domain:
+  == domain 1  score: 16.1 bits;  conditional E-value: 6.5e-06
+          WY_fold  18 spddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +  +V+++LkL++  ++ l++p++ ++  Yv+
+  Pag3770_10_3147 149 DGLQVLNKLKLGDNIADTLANPKLGVLSEYVT 180
+                      5569**************************96 PP
+
+  == domain 2  score: 50.9 bits;  conditional E-value: 7.9e-17
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49 
+                      +l+k+q++ W+k g+s+ddVF+lLkL + g+++lts+ ++++++Y+k
+  Pag3770_10_3147 228 ALRKEQMRDWFKGGRSADDVFDLLKLREEGYTVLTSRRLEVLEDYIK 274
+                      699******************************************97 PP
+
+>> Pag3770_10_2899  [1773184 - 1772114] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   39.4   0.2     3e-13   1.2e-10       5      46 ..      81     122 ..      77     125 .. 0.93
+   2 ?    0.4   0.1      0.54   2.1e+02       3      14 ..     169     180 ..     155     183 .. 0.74
+   3 !   26.2   0.8   4.3e-09   1.7e-06       1      48 [.     244     291 ..     244     292 .. 0.90
+   4 ?   -3.3   0.0       7.7   2.9e+03      11      23 ..     330     342 ..     329     350 .. 0.77
+
+  Alignments for each domain:
+  == domain 1  score: 39.4 bits;  conditional E-value: 3e-13
+          WY_fold   5 qkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvk 46 
+                       + ++k+Wl+kgk+ ++V ++LkL+++++ +l++p++k+++k
+  Pag3770_10_2899  81 DSTKIKYWLRKGKTEEEVMNMLKLGDDAAAALENPKLKVLTK 122
+                      5789***********************************988 PP
+
+  == domain 2  score: 0.4 bits;  conditional E-value: 0.54
+          WY_fold   3 klqkaqlkkWlk 14 
+                      +l ka +k+Wlk
+  Pag3770_10_2899 169 TLLKADMKSWLK 180
+                      556666666665 PP
+
+  == domain 3  score: 26.2 bits;  conditional E-value: 4.3e-09
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYv 48 
+                      ak+l ++q   Wl++gks+ddVF lL++ ++g+  +t ++++++ +Yv
+  Pag3770_10_2899 244 AKQLWSEQQAIWLNSGKSVDDVFVLLNIRNDGYWGMTAKKLNALDDYV 291
+                      79999***************************9888888888888887 PP
+
+  == domain 4  score: -3.3 bits;  conditional E-value: 7.7
+          WY_fold  11 kWlkkgkspddVF 23 
+                       W +++k  d VF
+  Pag3770_10_2899 330 DWSSQRKANDAVF 342
+                      6888888888888 PP
+
+>> Pag3770_10_2741  [1898695 - 1898207] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.4   0.6   9.8e-16   3.7e-13       6      48 ..     107     149 ..     102     150 .. 0.94
+
+  Alignments for each domain:
+  == domain 1  score: 47.4 bits;  conditional E-value: 9.8e-16
+          WY_fold   6 kaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYv 48 
+                      + ++k+W +k+ +p dV+k+LkL+++++ +l++p++k+++kY+
+  Pag3770_10_2741 107 STKIKYWSSKDQTPADVLKMLKLGDDAAAALENPKLKALTKYI 149
+                      689***************************************8 PP
+
+>> Pag3770_10_1703  [1565424 - 1565858] 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   29.6   0.0   3.8e-10   1.4e-07      11      49 .]       3      41 ..       1      41 [. 0.96
+   2 !   13.7   0.2   3.5e-05     0.013       1      21 [.      83     103 ..      83     107 .. 0.91
+
+  Alignments for each domain:
+  == domain 1  score: 29.6 bits;  conditional E-value: 3.8e-10
+          WY_fold 11 kWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49
+                     +W+++gks+ddV+ +L+L+  g+ + +s +  ++++Y+k
+  Pag3770_10_1703  3 SWFSSGKSVDDVYAILRLQQEGAAAINSWKVDVLTAYIK 41
+                     7************************************97 PP
+
+  == domain 2  score: 13.7 bits;  conditional E-value: 3.5e-05
+          WY_fold   1 akklqkaqlkkWlkkgkspdd 21 
+                      ak+lq +q+k W  +g  p+ 
+  Pag3770_10_1703  83 AKRLQEKQFKMWVEDGVKPKT 103
+                      89****************986 PP
+
+>> Pag3770_10_3148  [1557534 - 1557100] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   29.6   0.0   3.8e-10   1.4e-07      11      49 .]       3      41 ..       1      41 [. 0.96
+   2 !   13.7   0.2   3.5e-05     0.013       1      21 [.      83     103 ..      83     107 .. 0.91
+
+  Alignments for each domain:
+  == domain 1  score: 29.6 bits;  conditional E-value: 3.8e-10
+          WY_fold 11 kWlkkgkspddVFklLkLdkagdklltspnfktWvkYvk 49
+                     +W+++gks+ddV+ +L+L+  g+ + +s +  ++++Y+k
+  Pag3770_10_3148  3 SWFSSGKSVDDVYAILRLQQEGAAAINSWKVDVLTAYIK 41
+                     7************************************97 PP
+
+  == domain 2  score: 13.7 bits;  conditional E-value: 3.5e-05
+          WY_fold   1 akklqkaqlkkWlkkgkspdd 21 
+                      ak+lq +q+k W  +g  p+ 
+  Pag3770_10_3148  83 AKRLQEKQFKMWVEDGVKPKT 103
+                      89****************986 PP
+
+>> Pag3770_10_2743  [1897941 - 1897363] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   28.4   1.1   8.5e-10   3.2e-07       1      32 [.      17      48 ..      17      65 .. 0.86
+   2 !   14.7   0.9   1.7e-05    0.0064       1      33 [.     124     156 ..     124     164 .. 0.92
+
+  Alignments for each domain:
+  == domain 1  score: 28.4 bits;  conditional E-value: 8.5e-10
+          WY_fold  1 akklqkaqlkkWlkkgkspddVFklLkLdkag 32
+                     ak+l ++q   Wl++gks+d VF+lLk+ ++ 
+  Pag3770_10_2743 17 AKQLWTEQQSVWLNSGKSVDNVFTLLKIRNDE 48
+                     799************************99875 PP
+
+  == domain 2  score: 14.7 bits;  conditional E-value: 1.7e-05
+          WY_fold   1 akklqkaqlkkWlkkgkspddVFklLkLdkagd 33 
+                      akk+q+a++++W +++  p  V  +L  d++g+
+  Pag3770_10_2743 124 AKKMQTALFEHWWNQNLQPANVVVKLSKDEKGN 156
+                      89*************************999986 PP
+
+>> Pag3770_10_3023  [1664294 - 1663554] (REVERSE SENSE) 
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   35.3   1.1   6.1e-12   2.3e-09       3      48 ..     184     227 ..     182     228 .. 0.90
+
+  Alignments for each domain:
+  == domain 1  score: 35.3 bits;  conditional E-value: 6.1e-12
+          WY_fold   3 klqkaqlkkWlkkgkspddVFklLkLdkagdklltspnfktWvkYv 48 
+                      +++ a++++W+k++kspddV+ +Lk++ + +  ++ +n+  W++Y+
+  Pag3770_10_3023 184 RYTMAKFENWFKQNKSPDDVKAMLKVGTGPT--VNTKNYDLWIQYT 227
+                      67889*********************97766..79**********7 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (49 nodes)
+Target sequences:                       4963  (893751 residues searched)
+Passed MSV filter:                       118  (0.0237759); expected 99.3 (0.02)
+Passed bias filter:                       79  (0.0159178); expected 99.3 (0.02)
+Passed Vit filter:                        17  (0.00342535); expected 5.0 (0.001)
+Passed Fwd filter:                        13  (0.00261938); expected 0.0 (1e-05)
+Initial search space (Z):               4963  [actual number of targets]
+Domain search space  (domZ):              13  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 12154.99
+//
+[ok]
