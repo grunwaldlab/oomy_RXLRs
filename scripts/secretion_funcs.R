@@ -8,7 +8,16 @@ read_wy_list <- function(x) {
   select(-fpath)
 }
 
-# Runs and parses regex search for RXLR-EER domains - Section 3.1, Step 4
+# List of WY candidates all genes - Sec 3.2, Step 3
+read_wy_list_allgenes <- function(x) {
+  read_tsv(x, show_col_types = FALSE,
+           col_names = c("ID"), id = "fpath") %>%
+    mutate("isolate" = str_extract(fpath,
+                         "(?<=orfs_cand_RXLRs_).*(?=_longnames)")) %>%
+  select(-fpath)
+}
+
+# Runs and parses regex search for RXLR-EER domains - Step 4 Sections 3.1, 3.2
 effectr_eer_sp3 <- function(seqs_file, sp3_file, isolate_name = NULL) {
   # Read in seqs to scan 
   orfs <- read.fasta(seqs_file)
