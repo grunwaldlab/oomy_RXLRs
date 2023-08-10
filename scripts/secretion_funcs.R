@@ -135,8 +135,8 @@ read_prune_tms <- function(sp3_f, tmhmm_f, isolate = NULL, quiet = FALSE, check_
     # pr102v3_sp3 <- select(pr102v3_sp3, "Protein" = ID, HMM_Sprob_score, NN_Ymax_pos)
     select("Protein" = ID, HMM_Sprob_score, NN_Ymax_pos)
   
-  tm_raw <- iSecrete::read_tmhmm(tmhmm_f, show_col_types = FALSE)
-  sp3_tm_cands <- iSecrete::join_sp_to_tmhmm(tm_raw, sp3_cands, is.secreted = FALSE)
+  tm_raw <- read_tmhmm(tmhmm_f, show_col_types = FALSE)
+  sp3_tm_cands <- join_sp_to_tmhmm(tm_raw, sp3_cands, is.secreted = FALSE)
   notm_cands <- prune_tm_by_sp(sp3_tm_cands, check_signalp = check_sigp)
   if(quiet == FALSE) {
     if(!is.null(isolate)) {
