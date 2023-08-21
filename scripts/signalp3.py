@@ -258,7 +258,7 @@ def clean_up(file_list):
 if len(jobs) > 1 and num_threads > 1:
     # A small "info" message for Galaxy to show the user.
     print("Using %i threads for %i tasks" % (min(num_threads, len(jobs)), len(jobs)))
-results = run_jobs(jobs, num_threads)
+results = run_jobs(jobs, num_threads, 10, True)
 assert len(fasta_files) == len(temp_files) == len(jobs)
 for fasta, temp, cmd in zip(fasta_files, temp_files, jobs):
     error_level = results[cmd]
