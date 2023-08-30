@@ -23,8 +23,9 @@ effectr_eer_sp3 <- function(seqs_file, sp3_file, isolate_name = NULL) {
   orfs <- read.fasta(seqs_file)
   # Read signalp3 output from all possible candidates
   sp3 <- read_tsv(sp3_file, show_col_types = FALSE, id = "fpath") %>%
-    mutate("isolate" = str_extract(fpath, ".*(?=\\.orfs)")) %>%
-    mutate(isolate = str_remove(isolate, ".*data/*")) %>%
+    #mutate("isolate" = str_extract(fpath, ".*(?=\\.orfs)")) %>%
+    #mutate(isolate = str_remove(isolate, ".*data/*")) %>%
+    mutate(isolate = str_remove(str_extract(fpath, ".*(?=\\.orfs-min70long.start2stop.*)|(?<=orfs_cand_RXLRs_).*?(?=\\_longnames.*)"), ".*data/*")) %>%
     filter(HMM_Sprob_score >= 0.9) %>%
     rename("ID" = `#ID`)
   if(is.null(isolate_name)) {
