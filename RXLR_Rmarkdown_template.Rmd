@@ -1,0 +1,396 @@
+---
+title: "RXLR_Rmarkdown_template"
+output: html_document
+date: "2023-08-30"
+---
+
+
+## Before you begin
+### 1. Pull Github repository to local machine https://github.com/grunwaldlab/oomy_RXLRs
+### 2. If working within oomy_RXLRs folder, add your FASTA and GFF files to the 'data' folder
+### 3. If creating a new directory, make a 'data' subdirectory and copy your FASTA and GFF files to new directory. Second, copy the scripts folder from 'oomy_RXLRs'so you also have a 'scripts' subdirectory. Don't manipulate this folder.
+### 4. If running code chunks using Rmarkdown template, copy the Rmarkdown template into your new directory as well 
+### 5. Start a new R project in the same directory as your Rmarkdown template-this is important or else some scripts will not be found and cannot load. 
+### 6. Install programs and dependencies described in the book chapter. If programs do not run, you may not have specified the paths to the executables, you may have to add the absolute path to the executables within the code chunks. 
+### 7. Some programs allow you to specify number of cores. Please change based on your own computing capabilities. We recommend having at least 4 cores. Programs will take longer depending on genome size. 
+
+## Setup R environment once you've installed other programs and dependencies
+```{r setup, include=TRUE}
+# In R environment
+knitr::opts_chunk$set(echo = TRUE)
+source("scripts/secretion_funcs.R")
+library("tidyverse")
+library("seqinr")
+devtools::install_github(repo = "grunwaldlab/effectR", build_vignettes = TRUE)
+library("effectR")
+library("optparse")
+```
+
+## SECTION 3.2-Obtain candidate RXLRs from all ORFs
+### Step 1, step 2 and first part of step 3 
+### Example dataset is used (found within in 'data' folder on Github repo)
+### Bash code chunk
+```{bash, eval = TRUE}
+# In Bash environment
+#Step 1
+mkdir output_data
+
+genome="data/Paga_3770v2_chr10.fasta" #Change depending on name of input fasta assembly file
+
+isolate=$(basename -s ".fasta" ${genome})
+minsize_aa=70 # amino acids
+minsize_nt=210 # minsize_aa*3 = number of nucleotides
+orfs_name="${isolate}.orfs-min${minsize_aa}long.start2stop"
+orfs="output_data/${orfs_name}.fasta"
+
+# Plug parameters into EMBOSS GetORF
+# Parameter find=1 sets search to between start and stop codons
+getorf -sequence "$genome" -outseq "$orfs" -minsize $minsize_nt --find 1
+
+# Step 2
+# May need to specify path of tmhmm
+# Had to copy signalp to /usr/bin; this may or may not be required
+
+threads=4 #Change based on computing resources available
+python2.7 scripts/rxlr_signalpeptide.py $orfs $threads \
+  secretome output_data/${orfs_name}.rxlr_signalpep.out
+  
+# May need to specify absolute path for tmhmm
+tmhmm -short $orfs > output_data/${orfs_name}.tmhmm.out 
+
+# First part of step 3 
+hmmsearch --cpu 4 --seed 123 -T 0 --tblout output_data/${orfs_name}.rxlr_WYfold_hmm.out data/WY_fold.hmm $orfs > output_data/${orfs_name}.rxlr_WYfold_hmm.log
+# simple list of candidates
+egrep -v '^#' output_data/${orfs_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > output_data/${orfs_name}.rxlr_WYfold_hmm.list
+```
+
+### Step 3, part 2 continued
+### R code chunk
+```{r eval = TRUE}
+# In R environment
+wy_list_regex <- "*.orfs-min70long.start2stop.rxlr_WYfold_hmm.list"
+orfs_wys <-  list.files(path = "output_data/",
+                                pattern = wy_list_regex, full.names = TRUE) %>%
+  map_dfr(read_wy_list) %>%
+  unite("ID_isolate", ID, isolate, sep=":", remove = FALSE) %>%
+  mutate("method" = "WY_hmm")
+```
+
+### Step 3, part 3 continued 
+### R code chunk
+```{r eval = TRUE}
+# In R environment
+# Locate files programmatically in R environment
+# all ORFs:
+orf_fs_regex <- ".*orfs-min70long.start2stop.fasta" 
+orf_fs <- list.files(path = "output_data", 
+                                pattern = orf_fs_regex, full.names = TRUE) %>% 
+  tibble("orf_fs" = .) %>% 
+  separate(orf_fs, into = c("isolate", NA), 
+           sep = "(?=\\.orfs-min)", remove = FALSE) %>% 
+  mutate(isolate = str_remove(isolate, ".*data/*")) 
+
+# SignalP output files: 
+
+sp3_fs_regex <- ".*orfs-min70long.start2stop.rxlr_signalpep.outsp3_tabular.tmp" 
+sp3_fs <- list.files(path = "output_data", 
+
+                                pattern = sp3_fs_regex, full.names = TRUE) %>% 
+  tibble("sp3_fs" = .) %>% 
+  separate(sp3_fs, into = c("isolate", NA), 
+           sep = "(?=\\.orfs-min)", remove = FALSE) %>% 
+  mutate(isolate = str_remove(isolate, ".*data/*")) 
+
+orf_sp3_fs <- full_join(orf_fs, sp3_fs, by = "isolate") %>% 
+  select(orf_fs, sp3_fs, isolate) 
+
+# run motif search 
+allorfs_re_effectr <- map2(orf_sp3_fs$orf_fs, orf_sp3_fs$sp3_fs, effectr_eer_sp3)
+
+allorfs_re_effectr_tb <- tibble(bind_rows(allorfs_re_effectr)) %>%
+  unite("ID_isolate", ID, isolate, sep=":", remove = FALSE)
+```
+
+### Step 4
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+# Programmatically find files in R environment 
+sp3_fs_regex <- ".*orfs-min70long.start2stop.rxlr_signalpep.outsp3_tabular.tmp" 
+sp3_fs <- list.files(path = "output_data", 
+                                pattern = sp3_fs_regex, full.names = TRUE) 
+tmm_fs_regex <- ".*orfs-min70long.start2stop.tmhmm.out" 
+tmm_fs <- list.files(path= "output_data", 
+                                pattern = tmm_fs_regex, full.names = TRUE) 
+ 
+# make dataframe for easier function running 
+# and validate the signalp and tmhmm runs line up 
+sp3_tmm_fs <- tibble("sp3_fs" = sp3_fs, 
+                     "tmm_fs " = tmm_fs) %>% 
+  mutate("isolate_s" = str_extract(sp3_fs, "(?<=/).*(?=\\.orfs)")) %>% 
+  mutate("isolate_t" = str_extract(tmm_fs, "(?<=/).*(?=\\.orfs)")) 
+ 
+# parse signalP and tmhmm output files. 
+# filters based on HMM_Sprob_score of signalp 
+# and position of helix relative to most likely signal peptide position 
+
+sp3_tmm_pass <- pmap(sp3_tmm_fs, ~ read_prune_tms(..1, ..2, ..3), .id = 'isolate') %>% 
+  bind_rows() %>% 
+  unite("ID_isolate", Protein, isolate, sep= ":", remove = FALSE) 
+ 
+# Size of complete secretome 
+sp3_tmm_pass %>% 
+  filter(HMM_Sprob_score >= 0.9) %>% 
+  distinct(ID_isolate, .keep_all = TRUE) %>% 
+  group_by(isolate) %>% 
+  summarize(n_noTM_yesSP = n()) 
+```
+
+### Step 5
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+# Start with results of RXLR-EER domain searches 
+
+rxlr_orfs <- allorfs_re_effectr_tb %>%  
+  bind_rows(orfs_wys) %>% # join to results of WY searching 
+  group_by(ID_isolate, ID, isolate) %>% 
+  mutate(isolate = str_remove(isolate, "/")) %>% 
+  # I want the methods as a list 
+  summarize(methods_list = paste(method, collapse = ",")) %>% 
+  filter((grepl("Whis2007", methods_list)) | 
+           (grepl("Whis_rxlr", methods_list) & (grepl("Whis_eer", methods_list) | grepl("WY_hmm", methods_list))) | 
+           (grepl("Win2007", methods_list) & (grepl("Whis_eer", methods_list) | grepl("WY_hmm", methods_list)))) %>% 
+  filter(ID_isolate %in% sp3_tmm_pass$ID_isolate) %>% # filter to secretome 
+  group_by(isolate) %>% 
+  distinct(ID_isolate) 
+
+# Final counts 
+rxlr_orfs %>%
+  summarize(noTM_whis_or_whiswinrxlrEER_whiswinrxlrWY_count = n())
+
+out_prefix <- "/orfs_cand_RXLRs_"
+# Write final candidates to lists using respective isolate IDs 
+allorfs_re_effectr_tb %>%
+  ungroup() %>%
+  distinct(ID_isolate, .keep_all = TRUE) %>%
+  select(ID, isolate) %>%
+  group_by(isolate) %>%
+  group_walk(~ writeLines(.x$ID, paste0("output_data", out_prefix, .y$isolate, ".txt")))
+```
+
+### Step 6
+### Bash code chunk
+```{bash eval = TRUE}
+# In Bash environment
+# If AGAT was installed in a conda environment, may need to activate it
+eval "$(conda shell.bash hook)"
+conda activate agat
+
+# In bash environment, change directory names if needed 
+outdir="output_data" 
+
+# This must be changed depending on location of user’s data 
+assembly_dir="data"  
+rxlr_prefix="orfs_cand_RXLRs_" 
+
+# Run on all genomes being annotated 
+for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
+  # Establish output file name conventions
+  list_name=$(basename --suffix ".txt" $orf_rxlr_list)
+  iso_name=$(echo $list_name | sed "s/$rxlr_prefix//")
+  assembly=$(ls ${assembly_dir}/${iso_name}.fasta) || \
+    assembly=$(ls ${assembly_dir}/other_refs/${iso_name}.fasta)
+
+  # If needed, replace 70 with minimum protein length chosen.
+  orfs="$outdir/${iso_name}.orfs-min70long.start2stop.fasta"
+
+  # Obtain nationality. First get long ORF names from abbreviated.
+  grep -w -f $orf_rxlr_list $orfs | sed 's/>//' > $outdir/${list_name}_longnames.list
+  # Next convert ORF tag list to GFF
+  Rscript scripts/getorf_seqnames2gff.R -i $outdir/${list_name}_longnames.list
+
+  # Notifies about overlapping genes
+  agat_sp_fix_overlaping_genes.pl -f $outdir/${list_name}_longnames.gff \
+  -o $outdir/${list_name}_longnames.merge_ovlp.gff
+  
+  # If genes need merging, pick ORFs by hand or use output from above
+  agat_sp_add_start_and_stop.pl --gff $outdir/${list_name}_longnames.gff \
+  --fasta $assembly \
+  --output $outdir/${list_name}_longnames.str_stp.gff
+done
+```
+
+## Section 3.3-Obtain candidate RXLRs from all coding genes
+### Step 1 
+### Bash code chunk
+```{bash eval = TRUE}
+# In Bash environment
+# Same code as Section 3.1 Step 7 to name variables and start loop
+eval "$(conda shell.bash hook)"
+conda activate agat
+
+genome="data/PR-102_v4.fasta"
+isolate=$(basename -s ".fasta" ${genome})
+outdir="output_data"
+assembly_dir="data"
+rxlr_prefix="orfs_cand_RXLRs_"
+
+# Run on all genomes being annotated
+for orf_rxlr_list in $(ls -1 $outdir/${rxlr_prefix}*.txt); do
+  # Establish output file name conventions
+  list_name=$(basename --suffix ".txt" $orf_rxlr_list)
+  iso_name=$(echo $list_name | sed "s/$rxlr_prefix//")
+  echo $iso_name
+  assembly=$(ls ${assembly_dir}/${iso_name}.fasta) || \
+  assembly=$(ls ${assembly_dir}/other_refs/${iso_name}.fasta)
+  
+  ref_gff=$(ls $assembly_dir/${iso_name}.gff) || ref_gff=$(ls $assembly_dir/other_refs/${iso_name}.gff)
+  echo $ref_gff
+
+  # Re-name gene features
+  agat_sp_manage_IDs.pl --tair --type_dependent \
+    --prefix "${iso_name}_rxlrORF" \
+    --nb 1 --gff $outdir/${list_name}_longnames.str_stp.gff \
+    --output $outdir/${list_name}_longnames.str_stp.re-IDs.gff
+    
+  ls $ref_gff || \
+    printf "GFF not found, configure \$iso_name:$iso_name and \$ref_gff:$ref_gff\" && exit 2"
+    echo $ref_gff
+  
+  python3 scripts/complement_gff.py -r $ref_gff \
+    -s $outdir/${list_name}_longnames.str_stp.re-IDs.gff \
+    -o $outdir/${list_name}_longnames.str.stp.re-IDs.add_rxlrs.gff \
+    -l $outdir/${list_name}_longnames.str_stp.re-IDs.overlapping_ref.gff \
+    --unsorted
+
+  # Extract all proteins including RXLR ORFs supplemented
+  agat_sp_extract_sequences.pl \
+    --gff $outdir/${list_name}_longnames.str.stp.re-IDs.add_rxlrs.gff \
+    --fasta $assembly \
+    --protein \
+    -o $outdir/${list_name}_longnames.str_stp.re-IDs.add_rxlrs.fasta 
+done
+```
+
+### Step 2, Part 1 of Step 3
+### Bash code chunk
+```{bash eval = TRUE}
+# In bash environment
+# Change directory names if needed
+#In R bash code chunk, had to redefine 'genome' and 'isolate' variables
+genome="data/Paga_3770v2_chr10.fasta"
+isolate=$(basename -s ".fasta" ${genome})
+
+peps_name="orfs_cand_RXLRs_${isolate}_longnames.str_stp.re-IDs.add_rxlrs" 
+peps="output_data/${peps_name}.fasta" 
+threads=10
+python2.7 scripts/rxlr_signalpeptide.py $peps $threads secretome output_data/${peps_name}.rxlr_signalpep.out
+
+tmhmm -short $peps > output_data/${peps_name}.tmhmm.out
+
+# In bash environment, change directory names if needed 
+hmmsearch --cpu 4 --seed 123 -T 0 --tblout output_data/${peps_name}.rxlr_WYfold_hmm.out data/WY_fold.hmm $peps > output_data/${peps_name}.rxlr_WYfold_hmm.log 
+#remove slash before $1, when working with R bash code chunk  
+egrep -v '^#' output_data/${peps_name}.rxlr_WYfold_hmm.out | awk '{print $1}' > output_data/${peps_name}.rxlr_WYfold_hmm.list 
+```
+
+### Step 3, part 2
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+wy_list_re_allgenes <- "orfs_cand_RXLRs_.*add_rxlrs.rxlr_WYfold_hmm.list" 
+allgenes_wys <- list.files(path = "output_data/", 
+                           pattern = wy_list_re_allgenes, 
+                                     full.names = TRUE) %>% 
+  map_dfr(read_wy_list_allgenes) %>% 
+  unite("ID_isolate", ID, isolate, sep=":", remove = FALSE) %>% 
+  mutate("method" = "WY_hmm") 
+```
+
+### Step 4
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+# SignalP results are to check if TM is before | after the SP 
+sp3_fs_re_allgenes <- "*_longnames.str_stp.re-IDs.add_rxlrs.rxlr_signalpep.outsp3_tabular.tmp"
+sp3_fs_allgenes <- list.files(path = "output_data", 
+                                pattern = sp3_fs_re_allgenes, full.names = TRUE) 
+tmm_fs_re_allgenes <- ".*orfs_cand_RXLRs_.*add_rxlrs.tmhmm.out" 
+tmm_fs_allgenes <- list.files(path= "output_data", 
+                     pattern = tmm_fs_re_allgenes, full.names = TRUE) 
+ 
+# Dataframe for mapping, make sure filenames line up between SP and TM 
+sp3_tmm_fs_allgenes <- tibble("sp3_fs" = sp3_fs_allgenes, 
+                     "tmm_fs" = tmm_fs_allgenes) %>% 
+  mutate("isolate_s" = str_extract(sp3_fs, 
+                         "(?<=/orfs_cand_RXLRs_).*(?=_longnames)")) %>% 
+  mutate("isolate_t" = str_extract(tmm_fs, 
+                         "(?<=/orfs_cand_RXLRs_).*(?=_longnames)")) 
+ 
+# Perform filtering function 
+sp3_tmm_pass_allgenes <- pmap(sp3_tmm_fs_allgenes,~ read_prune_tms( 
+                                                      ..1, ..2, ..3), 
+                                              .id = 'isolate') %>% 
+  bind_rows() %>% 
+  unite("ID_isolate", Protein, isolate, sep=":", remove = FALSE) 
+```
+
+### Step 5
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+# Sequence filenames 
+seqs_fs_re_allgenes <- "orfs_cand_RXLRs_.*_longnames.str_stp.re-IDs.add_rxlrs.fasta" 
+seqs_fs_allgenes <- list.files(path = "output_data", 
+                               pattern = seqs_fs_re_allgenes, 
+                               full.names = TRUE) %>% 
+  tibble("seqs_fs" = .) %>% 
+  separate(seqs_fs, into = c("isolate", NA), 
+           sep = "(?=_longnames)", remove = FALSE) %>% 
+  mutate(isolate = str_remove(isolate, ".*orfs_cand_RXLRs_")) 
+ 
+# SignalP filenames and join to seq fnames 
+seqs_sp3_fs_allgenes <- sp3_fs_allgenes %>% 
+  tibble("sp3_fs" = .) %>% 
+  separate(sp3_fs, into = c("isolate", NA), 
+           sep = "(?=_longnames)", remove = FALSE) %>% 
+  mutate(isolate = str_remove(isolate, ".*orfs_cand_RXLRs_")) %>% 
+  full_join(seqs_fs_allgenes, by = "isolate") %>% 
+  select(seqs_fs, sp3_fs, isolate) 
+ 
+# Run motif searches 
+allgenes_re_effectr <- map2(seqs_sp3_fs_allgenes$seqs_fs, seqs_sp3_fs_allgenes$sp3_fs, effectr_eer_sp3) 
+allgenes_re_effectr_tb <- tibble(bind_rows(allgenes_re_effectr)) %>% 
+  unite("ID_isolate", ID, isolate, sep=":", remove = FALSE)
+```
+
+### Step 6
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+
+allgenes_re_effectr_tb_meths <- allgenes_re_effectr_tb %>%   
+  bind_rows(allgenes_wys) %>%   
+  group_by(ID_isolate, ID, isolate) %>%   
+  summarize(methods_list = paste(method, collapse = ",")) %>%   
+  filter((grepl("Whis2007", methods_list)) |   
+         (grepl("Whis_rxlr", methods_list) & (grepl("Whis_eer", methods_list) | grepl("WY_hmm", methods_list))) |   
+         (grepl("Win2007", methods_list) & (grepl("Whis_eer", methods_list) |  grepl("WY_hmm", methods_list)))) %>% 
+  mutate(isolate = str_remove(isolate, "/")) 
+```
+
+### Step 7
+### R code chunk
+```{r eval = TRUE}
+# In R environment 
+outdir <- "output_data" 
+out_prefix <- "/allgenes_RXLRs_" 
+# Write each group as its own txt file 
+allgenes_re_effectr_tb_meths %>% 
+  filter(ID_isolate %in% sp3_tmm_pass_allgenes$ID_isolate) %>% 
+  group_by(isolate) %>% 
+  distinct(ID_isolate, .keep_all = TRUE) %>% 
+ group_walk(~ writeLines(.x$ID, 
+                         paste0(outdir, out_prefix, .y$isolate, ".txt"))) 
+```
