@@ -6,7 +6,7 @@ date: "2023-08-30"
 
 
 ## Before you begin
-### 1. Pull Github repository to local machine https://github.com/grunwaldlab/oomy_RXLRs
+### 1. Clone Github repository to local machine (https://github.com/grunwaldlab/oomy_RXLRs)
 ### 2. If working within oomy_RXLRs folder, add your FASTA and GFF files to the 'data' folder
 ### 3. If creating a new directory, make a 'data' subdirectory and copy your FASTA and GFF files to new directory. Second, copy the scripts folder from 'oomy_RXLRs'so you also have a 'scripts' subdirectory. Don't manipulate this folder.
 ### 4. If running code chunks using Rmarkdown template, copy the Rmarkdown template into your new directory as well 
